@@ -88,7 +88,7 @@ public abstract class Logger {
     }
 
     public static void sendLogs(Activity activity) {
-
+        sendLogs(activity, null);
     }
 
     public static void sendLogs(Activity activity, Map<String, Object[]> extras) {
@@ -181,11 +181,13 @@ public abstract class Logger {
                     write(zos, "Build.VERSION.SDK_INT:", Build.VERSION.SDK_INT);
                     write(zos, "Build.VERSION.SDK_INT_FULL:", Build.VERSION.SDK_INT_FULL);
 
-                    for (Map.Entry<String, Object[]> entry : extras.entrySet()) {
-                        Object[] arr = new Object[entry.getValue().length + 1];
-                        arr[0] = entry.getKey();
-                        System.arraycopy(entry.getValue(), 0, arr, 1, entry.getValue().length);
-                        write(zos, arr);
+                    if (null != extras) {
+                        for (Map.Entry<String, Object[]> entry : extras.entrySet()) {
+                            Object[] arr = new Object[entry.getValue().length + 1];
+                            arr[0] = entry.getKey();
+                            System.arraycopy(entry.getValue(), 0, arr, 1, entry.getValue().length);
+                            write(zos, arr);
+                        }
                     }
                     zos.closeEntry();
 
