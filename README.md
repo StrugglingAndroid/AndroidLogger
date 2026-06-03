@@ -96,7 +96,7 @@ Logger.clearOlderLogs(7);
 ### 初始化方法
 
 ```java
-Logger.init(File logDir, String providerAuthority)
+Logger.init(File logDir)
 ```
 
 | 参数 | 说明 |
@@ -184,11 +184,3 @@ AndroidLogger/
 ```
 yyyy-MM-dd HH:mm:ss.SSS LEVEL TAG Message
 ```
-
-## 版本历史
-
-- **1.0.0** - 初始版本，支持基本日志功能
-
-## 许可证
-
-Apache 2.0 License
