@@ -26,7 +26,7 @@ repositories {
 
 ```gradle
 dependencies {
-    implementation 'com.github.StrugglingAndroid:AndroidLogger:1.7'
+    implementation 'com.github.StrugglingAndroid:AndroidLogger:1.8'
 }
 ```
 
