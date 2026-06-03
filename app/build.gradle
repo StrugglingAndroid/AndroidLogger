@@ -40,4 +40,5 @@ dependencies {
     androidTestImplementation libs.espresso.core
 
     implementation project(':logger')
+//    implementation 'com.gitee.dlkw:android-logger:1.2'
 }

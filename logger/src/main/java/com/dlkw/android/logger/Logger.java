@@ -92,6 +92,12 @@ public abstract class Logger {
     }
 
     public static void sendLogs(Activity activity, Map<String, Object[]> extras) {
+        for (Map.Entry<String, Logger> entry : loggers.entrySet()) {
+            Logger logger = entry.getValue();
+            if (null != logger) {
+                logger.save();
+            }
+        }
         List<File> logFiles = getLogFiles();
         if (logFiles.isEmpty()) {
             Toast.makeText(activity, "暂无日志", Toast.LENGTH_SHORT).show();

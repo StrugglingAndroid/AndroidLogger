@@ -12,7 +12,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-class LoggerImpl extends Logger{
+class LoggerImpl extends Logger {
     private final ByteArrayOutputStream bos = new ByteArrayOutputStream();
     private final PrintStream printStream = new PrintStream(bos);
     private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -146,7 +146,7 @@ class LoggerImpl extends Logger{
                 printStream.println();
                 e.printStackTrace(printStream);
             }
-            if (forceSave || bos.size() > 1024) {
+            if (bos.size() > 0 && (forceSave || bos.size() > 1024)) {
                 String fileName = dateFormat.format(new Date()) + "_" + tag + ".log";
                 File logFile = new File(getLogFileDir(), fileName);
                 if (!logFile.getParentFile().exists()) {
@@ -158,6 +158,7 @@ class LoggerImpl extends Logger{
                 FileOutputStream fos = new FileOutputStream(logFile, true);
                 fos.write(bos.toByteArray());
                 fos.close();
+                bos.reset();
             }
         } catch (IOException e1) {
             Log.e("Logger", "writeMessageToFile error", e1);
