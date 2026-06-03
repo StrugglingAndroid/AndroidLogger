@@ -129,7 +129,7 @@ class LoggerImpl extends Logger {
 
     private String makeLogMsg(int level, String msg) {
         String s = dateTimeFormat.format(new Date());
-        s += " " + logLevels.get(level) + " " + tag + " " + msg;
+        s += " " + logLevels.get(level) + " " + tag + " " + sMessageInterceptor.intercept(msg);
         return s;
     }
 

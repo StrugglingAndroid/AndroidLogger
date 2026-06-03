@@ -39,8 +39,14 @@ public abstract class Logger {
     private static final Handler sMainHandler = new Handler();
     private static final Executor sExecutor = Executors.newCachedThreadPool();
 
+    protected static MessageInterceptor sMessageInterceptor = new MessageInterceptor();
+
     public static void init(File logDir) {
         sLogDir = logDir;
+    }
+
+    public static void setMessageInterceptor(MessageInterceptor interceptor) {
+        Logger.sMessageInterceptor = null == interceptor ? new MessageInterceptor() : interceptor;
     }
 
     public static Logger get() {
