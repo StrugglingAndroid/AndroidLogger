@@ -35,8 +35,7 @@ dependencies {
 在 `Application` 或 `Activity` 的 `onCreate` 方法中初始化：
 
 ```java
-Logger.init(new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "logs"), 
-            getApplication().getPackageName() + ".fileprovider");
+Logger.init(new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "logs"));
 ```
 
 ### 基本使用
@@ -65,7 +64,24 @@ logger.e("Error with exception", new Throwable("Something went wrong"));
 // 发送日志（带额外信息）
 Map<String, Object[]> extras = new WeakHashMap<>();
 extras.put("DeviceInfo", new Object[]{"Android 13", "Pixel 7"});
-Logger.sendLogs(MainActivity.this, extras);
+Logger.sendLogs(MainActivity.this, extras, new FileReadyListener() {
+    @Override
+    public void onReady(File zipFile) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("application/zip");
+        intent.putExtra(Intent.EXTRA_TITLE, "日志");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "日志");
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(getApplicationContext(), getApplication().getPackageName() + ".fileprovider", zipFile));
+        startActivity(Intent.createChooser(intent, "发送日志"));
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        e.printStackTrace(System.err);
+        Toast.makeText(MainActivity.this, "日志发送出错", Toast.LENGTH_SHORT).show();
+    }
+});
 ```
 
 ### 清理旧日志
