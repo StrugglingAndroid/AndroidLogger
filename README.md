@@ -27,7 +27,7 @@ repositories {
 
 ```gradle
 dependencies {
-    implementation 'com.gitee.dlkw:android-logger:1.5'
+    implementation 'com.gitee.dlkw:android-logger:1.7'
 }
 ```
 
