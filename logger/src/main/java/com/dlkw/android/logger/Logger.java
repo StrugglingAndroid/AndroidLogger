@@ -1,17 +1,13 @@
 package com.dlkw.android.logger;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.os.Build;
 import android.os.Handler;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.FileProvider;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,16 +33,14 @@ import java.util.zip.ZipOutputStream;
 public abstract class Logger {
     private static final Map<String, Logger> loggers = new WeakHashMap<>();
     private static File sLogDir;
-    private static String sProviderAuthority;
     protected final String tag;
     private boolean debug = true;
 
     private static final Handler sMainHandler = new Handler();
     private static final Executor sExecutor = Executors.newCachedThreadPool();
 
-    public static void init(File logDir, String providerAuthority) {
+    public static void init(File logDir) {
         sLogDir = logDir;
-        sProviderAuthority = providerAuthority;
     }
 
     public static Logger get() {
@@ -87,11 +81,11 @@ public abstract class Logger {
         return fileList;
     }
 
-    public static void sendLogs(Activity activity) {
-        sendLogs(activity, null);
+    public static void sendLogs(Activity activity, FileReadyListener listener) {
+        sendLogs(activity, null, listener);
     }
 
-    public static void sendLogs(Activity activity, Map<String, Object[]> extras) {
+    public static void sendLogs(Activity activity, Map<String, Object[]> extras, FileReadyListener listener) {
         for (Map.Entry<String, Logger> entry : loggers.entrySet()) {
             Logger logger = entry.getValue();
             if (null != logger) {
@@ -100,7 +94,7 @@ public abstract class Logger {
         }
         List<File> logFiles = getLogFiles();
         if (logFiles.isEmpty()) {
-            Toast.makeText(activity, "暂无日志", Toast.LENGTH_SHORT).show();
+            listener.onError(new Throwable("暂无日志"));
             return;
         }
         final String[] logFileNames = new String[logFiles.size()];
@@ -127,7 +121,7 @@ public abstract class Logger {
                                 checkedFiles.add(logFiles.get(i));
                             }
                         }
-                        sendFiles(activity, checkedFiles, extras);
+                        sendFiles(activity, checkedFiles, extras, listener);
                         dialog.dismiss();
                     }
                 })
@@ -160,7 +154,7 @@ public abstract class Logger {
         zos.write("\n".getBytes());
     }
 
-    public static void sendFiles(final Activity activity, final List<File> logFiles, final Map<String, Object[]> extras) {
+    public static void sendFiles(final Activity activity, final List<File> logFiles, final Map<String, Object[]> extras, final FileReadyListener listener) {
         sExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -213,13 +207,9 @@ public abstract class Logger {
                     sMainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Intent intent = new Intent(Intent.ACTION_SEND);
-                            intent.setType("application/zip");
-                            intent.putExtra(Intent.EXTRA_TITLE, "日志");
-                            intent.putExtra(Intent.EXTRA_SUBJECT, "日志");
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(activity, sProviderAuthority, zipFile));
-                            activity.startActivity(Intent.createChooser(intent, "发送日志"));
+                            if (null != listener) {
+                                listener.onReady(zipFile);
+                            }
                         }
                     });
                 } catch (Exception e) {
@@ -227,7 +217,9 @@ public abstract class Logger {
                     sMainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(activity, "日志发送出错", Toast.LENGTH_SHORT).show();
+                            if (null != listener) {
+                                listener.onError(e);
+                            }
                         }
                     });
                 }
