@@ -179,7 +179,6 @@ public abstract class Logger {
                     write(zos, "Build.SUPPORTED_32_BIT_ABIS:", String.join(",", Build.SUPPORTED_32_BIT_ABIS));
                     write(zos, "Build.SUPPORTED_64_BIT_ABIS:", String.join(",", Build.SUPPORTED_64_BIT_ABIS));
                     write(zos, "Build.VERSION.SDK_INT:", Build.VERSION.SDK_INT);
-                    write(zos, "Build.VERSION.SDK_INT_FULL:", Build.VERSION.SDK_INT_FULL);
 
                     if (null != extras) {
                         for (Map.Entry<String, Object[]> entry : extras.entrySet()) {
